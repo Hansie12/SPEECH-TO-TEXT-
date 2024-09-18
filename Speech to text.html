@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spoken English Practice Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #cce7ff; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+        #transcription {
+            margin: 20px 0;
+            font-size: 18px;
+            color: #555;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            min-height: 50px;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://img.freepik.com/premium-photo/cartoon-character-business-man-speaking-into-megaphone_744040-1058.jpg?w=1380" alt="/Users/hannesgrobler/Downloads/cartoonbussinessman.jpg">
+        <h1>Practice Your Spoken English</h1>
+        <p>Click the button and start speaking.</p>
+        <button id="startButton" onclick="startSpeechRecognition()">Start Speaking</button>
+        <div id="transcription">Your transcription will appear here...</div>
+        <div id="feedback"></div>
+    </div>
+
+    <script>
+        let recognition;
+
+        // Browser SpeechRecognition API setup (Works in Chrome)
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+        } else if ('SpeechRecognition' in window) {
+            recognition = new SpeechRecognition();
+        } else {
+            document.getElementById("feedback").innerText = "Speech recognition not supported on your browser.";
+            document.getElementById("startButton").disabled = true;
+        }
+
+        function startSpeechRecognition() {
+            document.getElementById("transcription").innerText = "Listening...";
+            document.getElementById("feedback").innerText = "";
+
+            recognition.lang = 'en-US'; // Set language
+            recognition.continuous = false; // Non-continuous listening
+            recognition.interimResults = true; // Allow interim results
+
+            recognition.onresult = function(event) {
+                let interimTranscription = '';
+                let finalTranscription = '';
+
+                // Process speech recognition results
+                for (let i = 0; i < event.results.length; i++) {
+                    let transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscription += transcript + ' ';
+                    } else {
+                        interimTranscription += transcript;
+                    }
+                }
+
+                document.getElementById("transcription").innerText = finalTranscription || interimTranscription;
+
+                if (finalTranscription) {
+                    giveFeedback(finalTranscription);
+                }
+            };
+
+            recognition.onerror = function(event) {
+                document.getElementById("feedback").innerText = 'Error occurred in recognition: ' + event.error;
+            };
+
+            recognition.onend = function() {
+                document.getElementById("transcription").innerText += ' (Recording stopped)';
+            };
+
+            recognition.start();
+        }
+
+        function giveFeedback(transcription) {
+    let feedback = '';
+
+    // Sample pronunciation feedback logic
+    if (transcription.toLowerCase().includes('schedule')) {
+        feedback += "Try pronouncing 'schedule' as 'sked-jool' or 'shed-yool' depending on the accent. ";
+    }
+    if (transcription.toLowerCase().includes('comfortable')) {
+        feedback += "For 'comfortable', try saying 'comf-tur-bull' instead of pronouncing each syllable distinctly. ";
+    }
+    if (transcription.toLowerCase().includes('often')) {
+        feedback += "The 't' in 'often' is silent. It's pronounced 'aw-fen'. ";
+    }
+    if (transcription.toLowerCase().includes('development')) {
+        feedback += "In 'development', the second 'e' is often reduced to a schwa sound, like 'de-vel-uhp-mint'. ";
+    }
+    if (transcription.toLowerCase().includes('recipe')) {
+        feedback += "The word 'recipe' is pronounced 'res-uh-pee', not 'ree-sipe'. ";
+    }
+    if (transcription.toLowerCase().includes('mischievous')) {
+        feedback += "'Mischievous' should be pronounced as 'mis-chuh-vuhs', not 'mis-chee-vee-ous'. ";
+    }
+    if (transcription.toLowerCase().includes('pronunciation')) {
+        feedback += "The correct pronunciation is 'pro-nun-ciation' (not 'pro-nown-ciation'). ";
+    }
+    if (transcription.toLowerCase().includes('espresso')) {
+        feedback += "It's 'espresso', not 'expresso'—no 'x' sound. ";
+    }
+
+    // Default feedback if no specific errors are found
+    if (!feedback) {
+        feedback = "Great pronunciation! Keep practicing.";
+    }
+
+    document.getElementById("feedback").innerText = feedback;
+}
+
+    </script>
+</body>
+</html>
